@@ -1,6 +1,7 @@
 /**
  * Created by csche on 19.07.2017.
  */
+const _ = require('lodash');
 const express = require("express");
 const bodyParser = require("body-parser");
 const {ObjectID} = require("mongodb");
@@ -63,6 +64,33 @@ app.delete("/todos/:id", (req, res) => {
             return res.status(404).send();
         }
         res.status(200).send({todo});
+    }).catch((e) => {
+        res.status(400).send();
+    });
+});
+
+app.patch("/todos/:id", (req, res) => {
+    let id = req.params.id;
+    //  lodash pick out text/completed, if it exists and assign to body
+    // now only these can be accessed
+    let body = _.pick(req.body, ["text", "completed"]);
+
+    if (!ObjectID.isValid(id)){
+        return res.status(404).send();
+    }
+
+    if(_.isBoolean(body.completed) && body.completed){
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+    
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+        if (!todo){
+            return res.status(404).send();
+        }
+        res.send({todo});
     }).catch((e) => {
         res.status(400).send();
     });
