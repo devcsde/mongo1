@@ -1,6 +1,8 @@
 /**
  * Created by csche on 19.07.2017.
  */
+require("./config/config");
+
 const _ = require('lodash');
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -12,7 +14,7 @@ const {User} = require("./models/user");
 
 let app = express();
 
-let port = process.env.PORT || 3000;
+let port = process.env.PORT;
 
 app.use(bodyParser.json());
 
