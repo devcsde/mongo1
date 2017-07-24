@@ -5,7 +5,7 @@
  */
 require("./config/config");
 
-var _ = require('lodash');
+var _ = require("lodash");
 var express = require("express");
 var bodyParser = require("body-parser");
 
@@ -58,7 +58,7 @@ app.get("/todos/:id", function (req, res) {
         }
         res.status(200).send({ todo: todo });
     }).catch(function (e) {
-        res.status(400).send();
+        res.status(400).send(e);
     });
 });
 
@@ -75,7 +75,7 @@ app.delete("/todos/:id", function (req, res) {
         }
         res.status(200).send({ todo: todo });
     }).catch(function (e) {
-        res.status(400).send();
+        res.status(400).send(e);
     });
 });
 
@@ -102,7 +102,21 @@ app.patch("/todos/:id", function (req, res) {
         }
         res.send({ todo: todo });
     }).catch(function (e) {
-        res.status(400).send();
+        res.status(400).send(e);
+    });
+});
+
+// POST /users
+app.post("/users", function (req, res) {
+    var body = _.pick(req.body, ["email", "password"]);
+    var user = new User(body);
+
+    user.save().then(function () {
+        return user.generateAuthToken();
+    }).then(function (token) {
+        res.header("x-auth", token).send(user);
+    }).catch(function (e) {
+        res.status(400).send(e);
     });
 });
 
