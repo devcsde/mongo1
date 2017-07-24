@@ -21,6 +21,9 @@ var _require3 = require("./models/todo"),
 var _require4 = require("./models/user"),
     User = _require4.User;
 
+var _require5 = require("./middleware/authenticate"),
+    authenticate = _require5.authenticate;
+
 var app = express();
 
 var port = process.env.PORT;
@@ -118,6 +121,10 @@ app.post("/users", function (req, res) {
     }).catch(function (e) {
         res.status(400).send(e);
     });
+});
+
+app.get("/users/me", authenticate, function (req, res) {
+    res.send(req.user);
 });
 
 app.listen(port, function () {
