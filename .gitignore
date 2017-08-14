@@ -1,3 +1,5 @@
+.idea
+.idea/workspace.xml
 .eslintrc.json
 .babelrc
 node_modules
