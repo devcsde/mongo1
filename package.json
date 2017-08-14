@@ -8,7 +8,7 @@
     "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js",
     "test-watch": "nodemon --exec \"npm test\"",
     "clean": "rm -rf dist",
-    "build": "npm run clean && mkdir dist && babel . --ignore node_modules,playground,tests -s -d dist",
+    "build": "npm run clean && mkdir dist && babel ./ --ignore node_modules,playground,tests -s -d dist",
     "production": "npm run build && node bin/production"
   },
   "engines": {
@@ -21,6 +21,7 @@
     "body-parser": "^1.17.2",
     "crypto-js": "^3.1.9-1",
     "express": "^4.15.3",
+    "g": "^2.0.1",
     "jsonwebtoken": "^7.4.1",
     "lodash": "^4.17.4",
     "mongodb": "^2.2.30",

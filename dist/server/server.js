@@ -30,9 +30,10 @@ var port = process.env.PORT;
 
 app.use(bodyParser.json());
 
-app.post("/todos", function (req, res) {
+app.post("/todos", authenticate, function (req, res) {
     var todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     });
     todo.save().then(function (doc) {
         res.send(doc);
@@ -41,21 +42,26 @@ app.post("/todos", function (req, res) {
     });
 });
 
-app.get("/todos", function (req, res) {
-    Todo.find().then(function (todos) {
+app.get("/todos", authenticate, function (req, res) {
+    Todo.find({
+        _creator: req.user._id
+    }).then(function (todos) {
         res.send({ todos: todos });
     }, function (e) {
         res.status(400).send(e);
     });
 });
 
-app.get("/todos/:id", function (req, res) {
+app.get("/todos/:id", authenticate, function (req, res) {
     var id = req.params.id;
 
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
-    Todo.findById(id).then(function (todo) {
+    Todo.findOne({
+        _id: id,
+        _creator: req.user._id
+    }).then(function (todo) {
         if (!todo) {
             return res.status(404).send();
         }
@@ -65,14 +71,17 @@ app.get("/todos/:id", function (req, res) {
     });
 });
 
-app.delete("/todos/:id", function (req, res) {
+app.delete("/todos/:id", authenticate, function (req, res) {
     // get the ID
     var id = req.params.id;
     // validate the ID --> not valid 404
     if (!ObjectID.isValid(id)) {
         return res.status(404).send();
     }
-    Todo.findByIdAndRemove(id).then(function (todo) {
+    Todo.findOneAndRemove({
+        _id: id,
+        _creator: req.user._id
+    }).then(function (todo) {
         if (!todo) {
             return res.status(404).send();
         }
@@ -82,7 +91,7 @@ app.delete("/todos/:id", function (req, res) {
     });
 });
 
-app.patch("/todos/:id", function (req, res) {
+app.patch("/todos/:id", authenticate, function (req, res) {
     var id = req.params.id;
     //  lodash pick out text/completed, if it exists and assign to body
     // now only these can be accessed
@@ -99,7 +108,10 @@ app.patch("/todos/:id", function (req, res) {
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, { $set: body }, { new: true }).then(function (todo) {
+    Todo.findOneAndUpdate({
+        _id: id,
+        _creator: req.user._id
+    }, { $set: body }, { new: true }).then(function (todo) {
         if (!todo) {
             return res.status(404).send();
         }
@@ -134,6 +146,14 @@ app.post("/users/login", function (req, res) {
             res.header("x-auth", token).send(user);
         });
     }).catch(function (e) {
+        res.status(400).send();
+    });
+});
+
+app.delete("/users/me/token", authenticate, function (req, res) {
+    req.user.removeToken(req.token).then(function () {
+        res.status(200).send();
+    }, function () {
         res.status(400).send();
     });
 });
