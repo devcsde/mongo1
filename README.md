@@ -1,5 +1,5 @@
 # mongo1
-full CRUD and RESTFUL TODO notes application
+full CRUD and RESTFUL TODO notes API
 
 Authentication and Authorization
 
